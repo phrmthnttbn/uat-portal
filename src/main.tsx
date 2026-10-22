@@ -1,34 +1,697 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { LayoutDashboard, Layers, ListChecks, ClipboardCheck, Bug, FileCheck2, ArrowUpRight, ArrowRight, Download, Search, X, Menu, RotateCcw, Bike, Check, Plus } from 'lucide-react';
-import { scenarios, initialCases, initialDefects, type TestCase, type Defect, type Status } from './data';
+import {
+  LayoutDashboard,
+  Layers,
+  ListChecks,
+  ClipboardCheck,
+  Bug,
+  FileCheck2,
+  ArrowUpRight,
+  ArrowRight,
+  Download,
+  Search,
+  X,
+  Menu,
+  RotateCcw,
+  Bike,
+  Check,
+  Plus,
+} from 'lucide-react';
+import {
+  scenarios,
+  initialCases,
+  initialDefects,
+  type TestCase,
+  type Defect,
+  type Status,
+} from './data';
 import './style.css';
-const pages = ['Dashboard','Test Scenarios','Test Cases','Test Results','Defect Tracking','UAT Sign-off'] as const;
-type Page = typeof pages[number];
-const icons = [LayoutDashboard,Layers,ListChecks,ClipboardCheck,Bug,FileCheck2];
-function useSaved<T,>(key:string, initial:T) { const [value,setValue]=useState<T>(()=>{try {return JSON.parse(localStorage.getItem(key)||'null')??initial;}catch{return initial;}}); const save=(next:T)=>{setValue(next);try{localStorage.setItem(key,JSON.stringify(next));}catch{alert('ไม่สามารถบันทึกในเบราว์เซอร์ได้ กรุณา Export ข้อมูลก่อนปิดหน้า');}}; return [value,save] as const; }
-function Badge({value}:{value:string}) {return <span className={'badge '+value.toLowerCase().replaceAll(' ','-')}>{value}</span>}
-function App(){
- const [page,setPage]=useState<Page>((pages.find(p=>p===decodeURIComponent(location.hash.slice(1))))||'Dashboard');
- const [cases,setCases]=useSaved<TestCase[]>('rider-cases-v1',initialCases); const [defects,setDefects]=useSaved<Defect[]>('rider-defects-v1',initialDefects);
- const [sign,setSign]=useSaved<{name:string;date:string}|null>('rider-sign-v1',null);
- const [query,setQuery]=useState(''); const [filter,setFilter]=useState('All'); const [selected,setSelected]=useState<TestCase|null>(null); const [adding,setAdding]=useState(false); const [menu,setMenu]=useState(false);
- const passed=cases.filter(c=>c.status==='Passed').length; const failed=cases.filter(c=>c.status==='Failed').length; const blocked=cases.filter(c=>c.status==='Blocked').length; const notRun=cases.filter(c=>c.status==='Not run').length; const executed=cases.length-notRun; const progress=Math.round(executed/cases.length*100); const open=defects.filter(d=>d.status!=='Closed'); const ready=passed===cases.length&&open.length===0;
- const nav=(p:Page)=>{setPage(p);location.hash=encodeURIComponent(p);setQuery('');setFilter('All');setMenu(false);};
- const exportData=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({cases,defects,signOff:sign},null,2)],{type:'application/json'}));a.download='rider-uat-report.json';a.click();URL.revokeObjectURL(a.href);};
- const updateCase=(c:TestCase)=>{setCases(cases.map(t=>t.id===c.id?c:t));setSign(null);setSelected(null);};
- const visible=cases.filter(c=>(filter==='All'||c.status===filter)&&`${c.id} ${c.title} ${c.module} ${c.owner}`.toLowerCase().includes(query.toLowerCase()));
- return <div className="app"><aside className={menu?'sidebar shown':'sidebar'}><a className="brand" href="#Dashboard" onClick={()=>nav('Dashboard')}><span className="brand-icon"><Bike size={25}/></span>rider<span className="brand-dot">.</span></a><div className="workspace">WORKSPACE <span>UAT</span></div><nav>{pages.map((p,i)=>{const Icon=icons[i];return <button key={p} className={page===p?'nav active':'nav'} onClick={()=>nav(p)}><Icon size={19}/>{p}{p==='Defect Tracking'&&<b>{open.length}</b>}</button>})}</nav><div className="sidebar-bottom"><div className="env-dot"/> Sandbox environment<p>ข้อมูลตัวอย่างสำหรับทดสอบ</p><button className="reset" onClick={()=>{if(confirm('รีเซ็ตผลทดสอบ Defect และ Sign-off เป็นข้อมูลตัวอย่างเริ่มต้น?')){setCases(initialCases);setDefects(initialDefects);setSign(null);}}}><RotateCcw size={14}/> Reset demo data</button></div><div className="profile"><span className="avatar">UT</span><div>UAT Team<small>Project workspace</small></div><span className="online"/></div></aside>
- <div className="main"><header><button className="mobile-menu" aria-label="เปิดเมนู" onClick={()=>setMenu(!menu)}><Menu/></button><div className="breadcrumb">Workspace <span>/</span> Rider UAT <span>/</span> <strong>{page}</strong></div><div className="header-right"><span className="release">● Release 1.0</span><span className="avatar small">UT</span></div></header><main><div className="page-heading"><div><div className="eyebrow">RIDER ACCEPTANCE TESTING</div><h1>{page}</h1><p>{page==='Dashboard'?'ภาพรวมการทดสอบและความพร้อมก่อนเปิดใช้งาน Rider': 'จัดการและติดตามการทดสอบระบบ Rider ในที่เดียว'}</p></div><button className="button secondary" onClick={exportData}><Download size={16}/> Export report</button></div>
- {page==='Dashboard'?<><section className="hero"><div><span className="hero-label"><span/> UAT CYCLE 01 · IN PROGRESS</span><h2>A smoother ride starts<br/>with better testing.</h2><p>ทดสอบทุกขั้นตอน เพื่อให้ทุกการส่งมอบเป็นไปอย่างมั่นใจ</p><button className="button light" onClick={()=>nav('Test Cases')}>Continue testing <ArrowRight size={16}/></button></div><div className="hero-progress"><div className="ring" style={{background:`conic-gradient(#b9e8a3 ${progress}%, #ffffff20 0)`}}><div><strong>{progress}<small>%</small></strong><span>Execution progress</span></div></div><p>{executed} of {cases.length} test cases executed</p></div></section><div className="stats">{[['Total test cases',cases.length,'Across 4 core modules',ListChecks],['Passed',passed,`${Math.round(passed/cases.length*100)}% of all test cases`,Check],['Failed',failed,'Requires investigation',Bug],['Open defects',open.length,`${open.filter(d=>d.severity==='Critical').length} critical issues`,Layers]].map(([label,value,caption,Icon],i)=>{const I=Icon as typeof Layers;return <div className={'stat stat-'+i} key={String(label)}><div>{String(label)}<I size={18}/></div><strong>{String(value).padStart(2,'0')}</strong><small>{String(caption)}</small></div>})}</div><div className="dashboard-grid"><section className="panel"><div className="panel-heading"><h3>Testing by module</h3><span className="muted">EXECUTION</span></div>{scenarios.map(s=>{const all=cases.filter(c=>c.scenario===s.id);const done=all.filter(c=>c.status!=='Not run').length;return <div className="module" key={s.id}><div><span>{s.module}</span><small>{done}/{all.length} cases <b>{Math.round(done/all.length*100)}%</b></small></div><div className="bar"><span style={{width:done/all.length*100+'%'}}/></div></div>})}<div className="legend"><span>● Executed</span><span>○ Not run</span></div></section><section className="panel readiness"><div className="panel-heading"><h3>Release readiness</h3><FileCheck2 size={19}/></div><span className={'badge '+(ready?'passed':'blocked')}>{ready?'Ready for sign-off':'Needs attention'}</span><h2>{ready?'Ready to ride.':'Let’s clear the road.'}</h2><p>{open.length} unresolved defects และ {notRun} test cases ที่ยังไม่ได้ทดสอบ</p><ul><li><Check size={16}/> Test scenarios prepared</li><li><span className="tiny-dot"/> {passed}/{cases.length} test cases passed</li><li><span className="tiny-dot amber"/> {blocked} blocked test cases</li></ul><button className="text-button" onClick={()=>nav('UAT Sign-off')}>View sign-off checklist <ArrowUpRight size={16}/></button></section></div><section className="panel"><div className="panel-heading"><h3>Defects to watch <span className="count">{open.length}</span></h3><button className="text-button" onClick={()=>nav('Defect Tracking')}>View all defects <ArrowRight size={15}/></button></div><DefectTable defects={open}/></section></>:null}
- {page==='Test Scenarios'&&<div className="scenario-grid">{scenarios.map((s,i)=><section className="panel scenario" key={s.id}><div className="scenario-no">0{i+1}<Layers size={21}/></div><small>{s.id} / {s.module}</small><h2>{s.name}</h2><p>{s.description}</p><div className="scenario-footer"><span>{cases.filter(c=>c.scenario===s.id).length} test cases</span><button className="text-button" onClick={()=>{nav('Test Cases');setQuery(s.module);}}>Explore <ArrowRight size={15}/></button></div></section>)}</div>}
- {(page==='Test Cases'||page==='Test Results')&&<section className="panel"><div className="panel-heading"><h3>{page==='Test Results'?'Execution results':'Test case library'} <span className="count">{visible.length}</span></h3></div><div className="toolbar"><label className="search"><Search size={17}/><input aria-label="ค้นหา Test Cases" placeholder="ค้นหา ID, ชื่อ, module หรือผู้ทดสอบ…" value={query} onChange={e=>setQuery(e.target.value)}/></label><select aria-label="กรองสถานะ" value={filter} onChange={e=>setFilter(e.target.value)}>{['All','Not run','Passed','Failed','Blocked'].map(s=><option key={s}>{s}</option>)}</select></div><div className="table-wrap"><table><thead><tr><th>TEST CASE</th><th>MODULE</th><th>PRIORITY</th><th>TESTER</th><th>STATUS</th><th/></tr></thead><tbody>{visible.map(c=><tr key={c.id}><td><small className="id">{c.id}</small><strong>{c.title}</strong>{page==='Test Results'&&<small>{c.actual||'ยังไม่มีผลการทดสอบ'}</small>}</td><td>{c.module}</td><td><Badge value={c.priority}/></td><td>{c.owner}</td><td><Badge value={c.status}/></td><td><button className="text-button" onClick={()=>setSelected({...c})}>Record <ArrowUpRight size={15}/></button></td></tr>)}</tbody></table>{!visible.length&&<div className="empty">ไม่พบรายการที่ตรงกับการค้นหา</div>}</div></section>}
- {page==='Defect Tracking'&&<section className="panel"><div className="panel-heading"><h3>Defect register <span className="count">{defects.length}</span></h3><button className="button primary" onClick={()=>setAdding(true)}><Plus size={16}/> Report defect</button></div><p className="muted">เปลี่ยนสถานะเพื่อติดตามการแก้ไข ข้อมูลจะบันทึกในเบราว์เซอร์นี้</p><DefectTable defects={defects} onStatus={(id,status)=>{setDefects(defects.map(d=>d.id===id?{...d,status}:d));setSign(null);}}/></section>}
- {page==='UAT Sign-off'&&<div className="dashboard-grid"><section className="panel"><div className="panel-heading"><h3>Acceptance checklist</h3><FileCheck2 size={20}/></div>{[[passed===cases.length,'Test cases passed',`${passed} / ${cases.length} cases`],[notRun===0,'Execution complete',`${notRun} remaining`],[open.length===0,'All defects resolved',`${open.length} unresolved`]].map(([ok,title,detail])=><div className="check-row" key={String(title)}><span className={ok?'check-icon good':'check-icon'}>{ok?<Check size={17}/>:<span/>}</span><div><strong>{title}</strong><small>{detail}</small></div><Badge value={ok?'Passed':'Blocked'}/></div>)}</section><section className="panel"><div className="eyebrow">FINAL ACCEPTANCE</div><h2>UAT Sign-off</h2><p className="muted">อนุมัติได้เมื่อทุก Test Case ผ่านและ Defect ทั้งหมดปิดแล้ว การอนุมัตินี้เป็นข้อมูลจำลองในเครื่อง</p>{sign?<div className="approval"><Badge value="Passed"/><h3>Approved by {sign.name}</h3><p>{new Date(sign.date).toLocaleString('th-TH')}</p></div>:<form onSubmit={e=>{e.preventDefault();if(!ready)return;const f=new FormData(e.currentTarget);setSign({name:String(f.get('name')).trim(),date:new Date().toISOString()});}}><label className="field">ชื่อผู้อนุมัติ<input name="name" required pattern=".*\S.*" placeholder="ระบุชื่อผู้อนุมัติ" disabled={!ready}/></label><button className="button primary" disabled={!ready}>Approve UAT sign-off <Check size={16}/></button>{!ready&&<small className="block-note">กรุณาดำเนินการตาม checklist ให้ครบก่อนอนุมัติ</small>}</form>}</section></div>}
- <footer><span>RIDER UAT PORTAL <span className="footer-dot">/</span> Release 1.0</span><span>Mock data · Saved on this browser</span></footer></main></div>
- {selected&&<div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="บันทึกผลทดสอบ"><div className="panel-heading"><h3>{selected.id} · Record result</h3><button aria-label="ปิด" className="icon-button" onClick={()=>setSelected(null)}><X/></button></div><h2>{selected.title}</h2><small>{selected.scenario} · {selected.module} · {selected.owner}</small><h4>Steps</h4><p className="pre">{selected.steps}</p><h4>Expected result</h4><p>{selected.expected}</p><form onSubmit={e=>{e.preventDefault();updateCase(selected);}}><label className="field">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value as Status})}>{['Not run','Passed','Failed','Blocked'].map(s=><option key={s}>{s}</option>)}</select></label><label className="field">Actual result<textarea required={selected.status!=='Not run'} value={selected.actual} onChange={e=>setSelected({...selected,actual:e.target.value})} placeholder="ผลที่พบจริง / รายละเอียดปัญหา"/></label><button className="button primary">Save result <Check size={16}/></button></form></section></div>}
- {adding&&<div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="รายงาน Defect"><div className="panel-heading"><h3>Report a defect</h3><button className="icon-button" aria-label="ปิด" onClick={()=>setAdding(false)}><X/></button></div><form onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);setDefects([...defects,{id:`DEF-${String(Math.max(0,...defects.map(d=>Number(d.id.split('-')[1])))+1).padStart(3,'0')}`,title:String(f.get('title')).trim(),severity:String(f.get('severity')),status:'Open',owner:String(f.get('owner')).trim(),caseId:String(f.get('caseId'))}]);setSign(null);setAdding(false);}}><label className="field">ชื่อปัญหา<input name="title" required pattern=".*\S.*"/></label><label className="field">Test Case<select name="caseId">{cases.map(c=><option key={c.id} value={c.id}>{c.id} · {c.title}</option>)}</select></label><label className="field">Severity<select name="severity">{['Critical','High','Medium','Low'].map(s=><option key={s}>{s}</option>)}</select></label><label className="field">ผู้รับผิดชอบ<input name="owner" required pattern=".*\S.*"/></label><button className="button primary">Create defect <Plus size={16}/></button></form></section></div>}
- </div>;
+const pages = [
+  'Dashboard',
+  'Test Scenarios',
+  'Test Cases',
+  'Test Results',
+  'Defect Tracking',
+  'UAT Sign-off',
+] as const;
+type Page = (typeof pages)[number];
+const icons = [LayoutDashboard, Layers, ListChecks, ClipboardCheck, Bug, FileCheck2];
+function useSaved<T>(key: string, initial: T) {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(key) || 'null') ?? initial;
+    } catch {
+      return initial;
+    }
+  });
+  const save = (next: T) => {
+    setValue(next);
+    try {
+      localStorage.setItem(key, JSON.stringify(next));
+    } catch {
+      alert('ไม่สามารถบันทึกในเบราว์เซอร์ได้ กรุณา Export ข้อมูลก่อนปิดหน้า');
+    }
+  };
+  return [value, save] as const;
 }
-function DefectTable({defects,onStatus}:{defects:Defect[];onStatus?:(id:string,status:string)=>void}){return <div className="table-wrap"><table><thead><tr><th>DEFECT / DESCRIPTION</th><th>TEST CASE</th><th>SEVERITY</th><th>ASSIGNED TO</th><th>STATUS</th></tr></thead><tbody>{defects.map(d=><tr key={d.id}><td><small className="id">{d.id}</small><strong>{d.title}</strong></td><td>{d.caseId}</td><td><Badge value={d.severity}/></td><td>{d.owner}</td><td>{onStatus?<select aria-label={`สถานะ ${d.id}`} value={d.status} onChange={e=>onStatus(d.id,e.target.value)}>{['Open','In progress','Resolved','Closed'].map(s=><option key={s}>{s}</option>)}</select>:<Badge value={d.status}/>}</td></tr>)}</tbody></table>{!defects.length&&<div className="empty">ไม่มี Defect ที่ค้างอยู่</div>}</div>}
-createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
+function Badge({ value }: { value: string }) {
+  return <span className={'badge ' + value.toLowerCase().replaceAll(' ', '-')}>{value}</span>;
+}
+function App() {
+  const [page, setPage] = useState<Page>(
+    pages.find((p) => p === decodeURIComponent(location.hash.slice(1))) || 'Dashboard',
+  );
+  const [cases, setCases] = useSaved<TestCase[]>('rider-cases-v1', initialCases);
+  const [defects, setDefects] = useSaved<Defect[]>('rider-defects-v1', initialDefects);
+  const [sign, setSign] = useSaved<{ name: string; date: string } | null>('rider-sign-v1', null);
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('All');
+  const [selected, setSelected] = useState<TestCase | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const passed = cases.filter((c) => c.status === 'Passed').length;
+  const failed = cases.filter((c) => c.status === 'Failed').length;
+  const blocked = cases.filter((c) => c.status === 'Blocked').length;
+  const notRun = cases.filter((c) => c.status === 'Not run').length;
+  const executed = cases.length - notRun;
+  const progress = Math.round((executed / cases.length) * 100);
+  const open = defects.filter((d) => d.status !== 'Closed');
+  const ready = passed === cases.length && open.length === 0;
+  const nav = (p: Page) => {
+    setPage(p);
+    location.hash = encodeURIComponent(p);
+    setQuery('');
+    setFilter('All');
+    setMenu(false);
+  };
+  const exportData = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(
+      new Blob([JSON.stringify({ cases, defects, signOff: sign }, null, 2)], {
+        type: 'application/json',
+      }),
+    );
+    a.download = 'rider-uat-report.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const updateCase = (c: TestCase) => {
+    setCases(cases.map((t) => (t.id === c.id ? c : t)));
+    setSign(null);
+    setSelected(null);
+  };
+  const visible = cases.filter(
+    (c) =>
+      (filter === 'All' || c.status === filter) &&
+      `${c.id} ${c.title} ${c.module} ${c.owner}`.toLowerCase().includes(query.toLowerCase()),
+  );
+  return (
+    <div className="app">
+      <aside className={menu ? 'sidebar shown' : 'sidebar'}>
+        <a className="brand" href="#Dashboard" onClick={() => nav('Dashboard')}>
+          <span className="brand-icon">
+            <Bike size={25} />
+          </span>
+          rider<span className="brand-dot">.</span>
+        </a>
+        <div className="workspace">
+          WORKSPACE <span>UAT</span>
+        </div>
+        <nav>
+          {pages.map((p, i) => {
+            const Icon = icons[i];
+            return (
+              <button key={p} className={page === p ? 'nav active' : 'nav'} onClick={() => nav(p)}>
+                <Icon size={19} />
+                {p}
+                {p === 'Defect Tracking' && <b>{open.length}</b>}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="env-dot" /> Sandbox environment<p>ข้อมูลตัวอย่างสำหรับทดสอบ</p>
+          <button
+            className="reset"
+            onClick={() => {
+              if (confirm('รีเซ็ตผลทดสอบ Defect และ Sign-off เป็นข้อมูลตัวอย่างเริ่มต้น?')) {
+                setCases(initialCases);
+                setDefects(initialDefects);
+                setSign(null);
+              }
+            }}
+          >
+            <RotateCcw size={14} /> Reset demo data
+          </button>
+        </div>
+        <div className="profile">
+          <span className="avatar">UT</span>
+          <div>
+            UAT Team<small>Project workspace</small>
+          </div>
+          <span className="online" />
+        </div>
+      </aside>
+      <div className="main">
+        <header>
+          <button className="mobile-menu" aria-label="เปิดเมนู" onClick={() => setMenu(!menu)}>
+            <Menu />
+          </button>
+          <div className="breadcrumb">
+            Workspace <span>/</span> Rider UAT <span>/</span> <strong>{page}</strong>
+          </div>
+          <div className="header-right">
+            <span className="release">● Release 1.0</span>
+            <span className="avatar small">UT</span>
+          </div>
+        </header>
+        <main>
+          <div className="page-heading">
+            <div>
+              <div className="eyebrow">RIDER ACCEPTANCE TESTING</div>
+              <h1>{page}</h1>
+              <p>
+                {page === 'Dashboard'
+                  ? 'ภาพรวมการทดสอบและความพร้อมก่อนเปิดใช้งาน Rider'
+                  : 'จัดการและติดตามการทดสอบระบบ Rider ในที่เดียว'}
+              </p>
+            </div>
+            <button className="button secondary" onClick={exportData}>
+              <Download size={16} /> Export report
+            </button>
+          </div>
+          {page === 'Dashboard' ? (
+            <>
+              <section className="hero">
+                <div>
+                  <span className="hero-label">
+                    <span /> UAT CYCLE 01 · IN PROGRESS
+                  </span>
+                  <h2>
+                    A smoother ride starts
+                    <br />
+                    with better testing.
+                  </h2>
+                  <p>ทดสอบทุกขั้นตอน เพื่อให้ทุกการส่งมอบเป็นไปอย่างมั่นใจ</p>
+                  <button className="button light" onClick={() => nav('Test Cases')}>
+                    Continue testing <ArrowRight size={16} />
+                  </button>
+                </div>
+                <div className="hero-progress">
+                  <div
+                    className="ring"
+                    style={{ background: `conic-gradient(#b9e8a3 ${progress}%, #ffffff20 0)` }}
+                  >
+                    <div>
+                      <strong>
+                        {progress}
+                        <small>%</small>
+                      </strong>
+                      <span>Execution progress</span>
+                    </div>
+                  </div>
+                  <p>
+                    {executed} of {cases.length} test cases executed
+                  </p>
+                </div>
+              </section>
+              <div className="stats">
+                {[
+                  ['Total test cases', cases.length, 'Across 4 core modules', ListChecks],
+                  [
+                    'Passed',
+                    passed,
+                    `${Math.round((passed / cases.length) * 100)}% of all test cases`,
+                    Check,
+                  ],
+                  ['Failed', failed, 'Requires investigation', Bug],
+                  [
+                    'Open defects',
+                    open.length,
+                    `${open.filter((d) => d.severity === 'Critical').length} critical issues`,
+                    Layers,
+                  ],
+                ].map(([label, value, caption, Icon], i) => {
+                  const I = Icon as typeof Layers;
+                  return (
+                    <div className={'stat stat-' + i} key={String(label)}>
+                      <div>
+                        {String(label)}
+                        <I size={18} />
+                      </div>
+                      <strong>{String(value).padStart(2, '0')}</strong>
+                      <small>{String(caption)}</small>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="dashboard-grid">
+                <section className="panel">
+                  <div className="panel-heading">
+                    <h3>Testing by module</h3>
+                    <span className="muted">EXECUTION</span>
+                  </div>
+                  {scenarios.map((s) => {
+                    const all = cases.filter((c) => c.scenario === s.id);
+                    const done = all.filter((c) => c.status !== 'Not run').length;
+                    return (
+                      <div className="module" key={s.id}>
+                        <div>
+                          <span>{s.module}</span>
+                          <small>
+                            {done}/{all.length} cases{' '}
+                            <b>{Math.round((done / all.length) * 100)}%</b>
+                          </small>
+                        </div>
+                        <div className="bar">
+                          <span style={{ width: (done / all.length) * 100 + '%' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="legend">
+                    <span>● Executed</span>
+                    <span>○ Not run</span>
+                  </div>
+                </section>
+                <section className="panel readiness">
+                  <div className="panel-heading">
+                    <h3>Release readiness</h3>
+                    <FileCheck2 size={19} />
+                  </div>
+                  <span className={'badge ' + (ready ? 'passed' : 'blocked')}>
+                    {ready ? 'Ready for sign-off' : 'Needs attention'}
+                  </span>
+                  <h2>{ready ? 'Ready to ride.' : 'Let’s clear the road.'}</h2>
+                  <p>
+                    {open.length} unresolved defects และ {notRun} test cases ที่ยังไม่ได้ทดสอบ
+                  </p>
+                  <ul>
+                    <li>
+                      <Check size={16} /> Test scenarios prepared
+                    </li>
+                    <li>
+                      <span className="tiny-dot" /> {passed}/{cases.length} test cases passed
+                    </li>
+                    <li>
+                      <span className="tiny-dot amber" /> {blocked} blocked test cases
+                    </li>
+                  </ul>
+                  <button className="text-button" onClick={() => nav('UAT Sign-off')}>
+                    View sign-off checklist <ArrowUpRight size={16} />
+                  </button>
+                </section>
+              </div>
+              <section className="panel">
+                <div className="panel-heading">
+                  <h3>
+                    Defects to watch <span className="count">{open.length}</span>
+                  </h3>
+                  <button className="text-button" onClick={() => nav('Defect Tracking')}>
+                    View all defects <ArrowRight size={15} />
+                  </button>
+                </div>
+                <DefectTable defects={open} />
+              </section>
+            </>
+          ) : null}
+          {page === 'Test Scenarios' && (
+            <div className="scenario-grid">
+              {scenarios.map((s, i) => (
+                <section className="panel scenario" key={s.id}>
+                  <div className="scenario-no">
+                    0{i + 1}
+                    <Layers size={21} />
+                  </div>
+                  <small>
+                    {s.id} / {s.module}
+                  </small>
+                  <h2>{s.name}</h2>
+                  <p>{s.description}</p>
+                  <div className="scenario-footer">
+                    <span>{cases.filter((c) => c.scenario === s.id).length} test cases</span>
+                    <button
+                      className="text-button"
+                      onClick={() => {
+                        nav('Test Cases');
+                        setQuery(s.module);
+                      }}
+                    >
+                      Explore <ArrowRight size={15} />
+                    </button>
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+          {(page === 'Test Cases' || page === 'Test Results') && (
+            <section className="panel">
+              <div className="panel-heading">
+                <h3>
+                  {page === 'Test Results' ? 'Execution results' : 'Test case library'}{' '}
+                  <span className="count">{visible.length}</span>
+                </h3>
+              </div>
+              <div className="toolbar">
+                <label className="search">
+                  <Search size={17} />
+                  <input
+                    aria-label="ค้นหา Test Cases"
+                    placeholder="ค้นหา ID, ชื่อ, module หรือผู้ทดสอบ…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                </label>
+                <select
+                  aria-label="กรองสถานะ"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  {['All', 'Not run', 'Passed', 'Failed', 'Blocked'].map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>TEST CASE</th>
+                      <th>MODULE</th>
+                      <th>PRIORITY</th>
+                      <th>TESTER</th>
+                      <th>STATUS</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visible.map((c) => (
+                      <tr key={c.id}>
+                        <td>
+                          <small className="id">{c.id}</small>
+                          <strong>{c.title}</strong>
+                          {page === 'Test Results' && (
+                            <small>{c.actual || 'ยังไม่มีผลการทดสอบ'}</small>
+                          )}
+                        </td>
+                        <td>{c.module}</td>
+                        <td>
+                          <Badge value={c.priority} />
+                        </td>
+                        <td>{c.owner}</td>
+                        <td>
+                          <Badge value={c.status} />
+                        </td>
+                        <td>
+                          <button className="text-button" onClick={() => setSelected({ ...c })}>
+                            Record <ArrowUpRight size={15} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {!visible.length && <div className="empty">ไม่พบรายการที่ตรงกับการค้นหา</div>}
+              </div>
+            </section>
+          )}
+          {page === 'Defect Tracking' && (
+            <section className="panel">
+              <div className="panel-heading">
+                <h3>
+                  Defect register <span className="count">{defects.length}</span>
+                </h3>
+                <button className="button primary" onClick={() => setAdding(true)}>
+                  <Plus size={16} /> Report defect
+                </button>
+              </div>
+              <p className="muted">
+                เปลี่ยนสถานะเพื่อติดตามการแก้ไข ข้อมูลจะบันทึกในเบราว์เซอร์นี้
+              </p>
+              <DefectTable
+                defects={defects}
+                onStatus={(id, status) => {
+                  setDefects(defects.map((d) => (d.id === id ? { ...d, status } : d)));
+                  setSign(null);
+                }}
+              />
+            </section>
+          )}
+          {page === 'UAT Sign-off' && (
+            <div className="dashboard-grid">
+              <section className="panel">
+                <div className="panel-heading">
+                  <h3>Acceptance checklist</h3>
+                  <FileCheck2 size={20} />
+                </div>
+                {[
+                  [
+                    passed === cases.length,
+                    'Test cases passed',
+                    `${passed} / ${cases.length} cases`,
+                  ],
+                  [notRun === 0, 'Execution complete', `${notRun} remaining`],
+                  [open.length === 0, 'All defects resolved', `${open.length} unresolved`],
+                ].map(([ok, title, detail]) => (
+                  <div className="check-row" key={String(title)}>
+                    <span className={ok ? 'check-icon good' : 'check-icon'}>
+                      {ok ? <Check size={17} /> : <span />}
+                    </span>
+                    <div>
+                      <strong>{title}</strong>
+                      <small>{detail}</small>
+                    </div>
+                    <Badge value={ok ? 'Passed' : 'Blocked'} />
+                  </div>
+                ))}
+              </section>
+              <section className="panel">
+                <div className="eyebrow">FINAL ACCEPTANCE</div>
+                <h2>UAT Sign-off</h2>
+                <p className="muted">
+                  อนุมัติได้เมื่อทุก Test Case ผ่านและ Defect ทั้งหมดปิดแล้ว
+                  การอนุมัตินี้เป็นข้อมูลจำลองในเครื่อง
+                </p>
+                {sign ? (
+                  <div className="approval">
+                    <Badge value="Passed" />
+                    <h3>Approved by {sign.name}</h3>
+                    <p>{new Date(sign.date).toLocaleString('th-TH')}</p>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!ready) return;
+                      const f = new FormData(e.currentTarget);
+                      setSign({
+                        name: String(f.get('name')).trim(),
+                        date: new Date().toISOString(),
+                      });
+                    }}
+                  >
+                    <label className="field">
+                      ชื่อผู้อนุมัติ
+                      <input
+                        name="name"
+                        required
+                        pattern=".*\S.*"
+                        placeholder="ระบุชื่อผู้อนุมัติ"
+                        disabled={!ready}
+                      />
+                    </label>
+                    <button className="button primary" disabled={!ready}>
+                      Approve UAT sign-off <Check size={16} />
+                    </button>
+                    {!ready && (
+                      <small className="block-note">
+                        กรุณาดำเนินการตาม checklist ให้ครบก่อนอนุมัติ
+                      </small>
+                    )}
+                  </form>
+                )}
+              </section>
+            </div>
+          )}
+          <footer>
+            <span>
+              RIDER UAT PORTAL <span className="footer-dot">/</span> Release 1.0
+            </span>
+            <span>Mock data · Saved on this browser</span>
+          </footer>
+        </main>
+      </div>
+      {selected && (
+        <div className="modal-backdrop">
+          <section className="modal" role="dialog" aria-modal="true" aria-label="บันทึกผลทดสอบ">
+            <div className="panel-heading">
+              <h3>{selected.id} · Record result</h3>
+              <button aria-label="ปิด" className="icon-button" onClick={() => setSelected(null)}>
+                <X />
+              </button>
+            </div>
+            <h2>{selected.title}</h2>
+            <small>
+              {selected.scenario} · {selected.module} · {selected.owner}
+            </small>
+            <h4>Steps</h4>
+            <p className="pre">{selected.steps}</p>
+            <h4>Expected result</h4>
+            <p>{selected.expected}</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateCase(selected);
+              }}
+            >
+              <label className="field">
+                Status
+                <select
+                  value={selected.status}
+                  onChange={(e) => setSelected({ ...selected, status: e.target.value as Status })}
+                >
+                  {['Not run', 'Passed', 'Failed', 'Blocked'].map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                Actual result
+                <textarea
+                  required={selected.status !== 'Not run'}
+                  value={selected.actual}
+                  onChange={(e) => setSelected({ ...selected, actual: e.target.value })}
+                  placeholder="ผลที่พบจริง / รายละเอียดปัญหา"
+                />
+              </label>
+              <button className="button primary">
+                Save result <Check size={16} />
+              </button>
+            </form>
+          </section>
+        </div>
+      )}
+      {adding && (
+        <div className="modal-backdrop">
+          <section className="modal" role="dialog" aria-modal="true" aria-label="รายงาน Defect">
+            <div className="panel-heading">
+              <h3>Report a defect</h3>
+              <button className="icon-button" aria-label="ปิด" onClick={() => setAdding(false)}>
+                <X />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const f = new FormData(e.currentTarget);
+                setDefects([
+                  ...defects,
+                  {
+                    id: `DEF-${String(Math.max(0, ...defects.map((d) => Number(d.id.split('-')[1]))) + 1).padStart(3, '0')}`,
+                    title: String(f.get('title')).trim(),
+                    severity: String(f.get('severity')),
+                    status: 'Open',
+                    owner: String(f.get('owner')).trim(),
+                    caseId: String(f.get('caseId')),
+                  },
+                ]);
+                setSign(null);
+                setAdding(false);
+              }}
+            >
+              <label className="field">
+                ชื่อปัญหา
+                <input name="title" required pattern=".*\S.*" />
+              </label>
+              <label className="field">
+                Test Case
+                <select name="caseId">
+                  {cases.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.id} · {c.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                Severity
+                <select name="severity">
+                  {['Critical', 'High', 'Medium', 'Low'].map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                ผู้รับผิดชอบ
+                <input name="owner" required pattern=".*\S.*" />
+              </label>
+              <button className="button primary">
+                Create defect <Plus size={16} />
+              </button>
+            </form>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
+function DefectTable({
+  defects,
+  onStatus,
+}: {
+  defects: Defect[];
+  onStatus?: (id: string, status: string) => void;
+}) {
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>DEFECT / DESCRIPTION</th>
+            <th>TEST CASE</th>
+            <th>SEVERITY</th>
+            <th>ASSIGNED TO</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {defects.map((d) => (
+            <tr key={d.id}>
+              <td>
+                <small className="id">{d.id}</small>
+                <strong>{d.title}</strong>
+              </td>
+              <td>{d.caseId}</td>
+              <td>
+                <Badge value={d.severity} />
+              </td>
+              <td>{d.owner}</td>
+              <td>
+                {onStatus ? (
+                  <select
+                    aria-label={`สถานะ ${d.id}`}
+                    value={d.status}
+                    onChange={(e) => onStatus(d.id, e.target.value)}
+                  >
+                    {['Open', 'In progress', 'Resolved', 'Closed'].map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <Badge value={d.status} />
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {!defects.length && <div className="empty">ไม่มี Defect ที่ค้างอยู่</div>}
+    </div>
+  );
+}
+createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

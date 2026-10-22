@@ -85,3 +85,16 @@ package-lock.json
 ## การตรวจสอบก่อนส่งมอบ
 
 ดูผลจริงใน BUILD-VERIFICATION.md ตรวจ build ซ้ำได้ด้วย npm ci และ npm run build
+
+## Prettier
+
+ติดตั้ง dependencies ด้วย `npm ci` แล้วใช้:
+
+```powershell
+npm run format
+npm run format:check
+```
+
+`format` จัดรูปแบบไฟล์ และ `format:check` ตรวจรูปแบบโดยไม่แก้ไฟล์ ตั้งค่าไว้ใน .prettierrc.json ใช้ 2 spaces, single quotes, semicolons และ LF โดยข้าม node_modules, dist และไฟล์ที่สร้างอัตโนมัติ
+
+หากใช้ VS Code ให้ติดตั้งส่วนขยาย **Prettier - Code formatter** (esbenp.prettier-vscode) เลือกเป็น Default Formatter และเปิด Format On Save ตามต้องการ
