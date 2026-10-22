@@ -108,6 +108,9 @@ function App() {
   );
   return (
     <div className="app">
+      {menu && (
+        <button className="menu-scrim" aria-label="ปิดเมนู" onClick={() => setMenu(false)} />
+      )}
       <aside className={menu ? 'sidebar shown' : 'sidebar'}>
         <a className="brand" href="#Dashboard" onClick={() => nav('Dashboard')}>
           <span className="brand-icon">
