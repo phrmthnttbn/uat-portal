@@ -15,4 +15,4 @@ Dashboard เริ่มต้น: 10 test cases, 6 Passed, 1 Failed, 1 Blocked
 
 รัน npm ci และ npm run build เพื่อตรวจซ้ำหลังแก้ไข ดูคู่มือ README.md สำหรับ Windows และ GitHub Pages
 
-เปลี่ยนชื่อ package และโฟลเดอร์เป็น uat-portal และตรวจ npm run build ซ้ำผ่านแล้ว (22 ตุลาคม 2026)
+เปลี่ยนชื่อ package และโฟลเดอร์เป็น uat-portal-management และตรวจ npm run build ซ้ำผ่านแล้ว (22 ตุลาคม 2026)
