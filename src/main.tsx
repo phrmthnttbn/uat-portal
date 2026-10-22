@@ -38,6 +38,7 @@ const pages = [
 type Page = (typeof pages)[number];
 const icons = [LayoutDashboard, Layers, ListChecks, ClipboardCheck, Bug, FileCheck2];
 function useSaved<T>(key: string, initial: T) {
+  key = `${window.location.pathname}:${key}`;
   const [value, setValue] = useState<T>(() => {
     try {
       return JSON.parse(localStorage.getItem(key) || 'null') ?? initial;
