@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>คู่มือ UAT Portal Management</title>
+    <style>
+      body {
+        font:
+          16px/1.9 Tahoma,
+          'Segoe UI',
+          sans-serif;
+        color: #294335;
+        background: #f5f4ed;
+        margin: 0;
+      }
+      header {
+        background: #183e30;
+        color: #eef3df;
+        padding: 48px max(24px, calc((100vw - 1000px) / 2));
+      }
+      header h1 {
+        font-size: 32px;
+        margin: 0;
+      }
+      main {
+        max-width: 1000px;
+        margin: auto;
+        padding: 30px 24px;
+      }
+      nav {
+        padding: 24px;
+        background: white;
+        border-radius: 14px;
+      }
+      nav a {
+        display: block;
+        color: #39653d;
+        padding: 6px;
+      }
+      section {
+        padding: 30px 0;
+        border-bottom: 1px solid #dce4cf;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.5;
+      }
+      h2 {
+        margin-top: 32px;
+        color: #426336;
+      }
+      p {
+        overflow-wrap: anywhere;
+        margin: 10px 0;
+      }
+      pre {
+        background: #193e30;
+        color: #e4efce;
+        padding: 22px;
+        border-radius: 12px;
+        overflow: auto;
+        font:
+          14px/1.8 Consolas,
+          monospace;
+      }
+      code {
+        font-family: Consolas, monospace;
+      }
+      p code {
+        background: #e8eddd;
+        border-radius: 4px;
+        padding: 2px 5px;
+      }
+      .table {
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+      }
+      td {
+        border: 1px solid #dce4cf;
+        padding: 12px;
+      }
+      tr:first-child {
+        background: #e6edda;
+        font-weight: bold;
+      }
+      a {
+        color: #426336;
+      }
+      @media print {
+        body {
+          background: white;
+        }
+        header {
+          background: white;
+          color: #183e30;
+          padding: 20px;
+        }
+        nav {
+          display: none;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          white-space: pre-wrap;
+          background: #f1f4ea;
+          color: #183e30;
+        }
+        section {
+          break-before: page;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>UAT Portal Management</h1>
+      <p>คู่มือทีละขั้น • Windows • ใช้งาน • แก้โค้ด • GitHub Pages</p>
+      <p>v2.0 — ไม่มี Role — บันทึกในเบราว์เซอร์</p>
+    </header>
+    <main>
+      <nav>
+        <strong>สารบัญ</strong><a href="#chapter-1">1. ติดตั้งและอัปเดตบน Windows</a
+        ><a href="#chapter-2">2. วิธีใช้ทุกหน้าจอ</a
+        ><a href="#chapter-3">3. Deploy main และ develop</a
+        ><a href="#chapter-4">4. สอนแก้โค้ดทีละส่วน</a><a href="#chapter-5">5. รายการทดลองรับมอบ</a>
+      </nav>
+      <section id="chapter-1">
+        <h1>01 — ติดตั้งและอัปเดตบน Windows</h1>
+        <h2>A. เปิดโปรเจกต์ใหม่จาก ZIP</h2>
+        <p>1. ติดตั้ง Node.js 22 LTS, Git for Windows และ VS Code หากยังไม่มี</p>
+        <p>2. คลิกขวา ZIP → Extract All ให้ได้โฟลเดอร์ uat-portal-management</p>
+        <p>3. อย่าเปิดงานภายใน ZIP ให้แตกไฟล์ก่อน</p>
+        <p>4. เปิด VS Code → File → Open Folder → เลือกโฟลเดอร์ที่มี package.json</p>
+        <p>5. เลือก Terminal → New Terminal ตรวจว่าอยู่โฟลเดอร์โปรเจกต์</p>
+        <p>6. รันคำสั่งทีละบรรทัด:</p>
+        <pre><code>npm ci
+npm run dev
+</code></pre>
+        <p>7. เปิด URL ที่ Terminal แสดง ปกติ http://127.0.0.1:5173/</p>
+        <p>8. ลองสลับ Project ด้านบน ระหว่าง RIDER กับ PORTAL ต้องเห็นข้อมูลต่างกัน</p>
+        <p>9. หยุด server ด้วย Ctrl+C</p>
+        <p>
+          หาก PowerShell ไม่อนุญาต npm.ps1 ใช้ npm.cmd แทน npm ทุกคำสั่ง ไม่ต้องเปลี่ยน Execution
+          Policy
+        </p>
+        <h2>B. อัปเดต repository เดิมโดยเก็บประวัติ Git</h2>
+        <p>
+          1. ก่อนอัปเดต ให้เปิดเว็บเดิมแล้ว Export ข้อมูลที่ต้องเก็บไว้ เก็บ ZIP/source
+          เดิมสำรองด้วย
+        </p>
+        <p>2. แตก ZIP ใหม่นอก repository เดิมเพื่อป้องกันโฟลเดอร์ซ้อน</p>
+        <p>3. เปิด repository เดิมใน VS Code ตรวจการแก้ที่ค้างอยู่ก่อน:</p>
+        <pre><code>git status
+git branch --show-current
+</code></pre>
+        <p>4. ถ้ามีงานที่ยังไม่บันทึก ให้ commit งานเดิมหรือสำรองก่อน แล้วสลับ develop:</p>
+        <pre><code>git switch develop
+git pull --ff-only origin develop
+</code></pre>
+        <p>5. คัดลอกไฟล์ต่อไปนี้จาก ZIP ไปยังตำแหน่งชื่อเดียวกันใน repository เดิม:</p>
+        <p>- src/main.tsx และ src/model.ts</p>
+        <p>- src/style.css</p>
+        <p>- index.html</p>
+        <p>- package.json และ package-lock.json (ต้องคัดลอกเป็นคู่)</p>
+        <p>- tests/ ทั้งโฟลเดอร์</p>
+        <p>- docs/ ทั้งโฟลเดอร์</p>
+        <p>- public/samples/ ทั้งโฟลเดอร์</p>
+        <p>- .github/workflows/deploy.yml</p>
+        <p>- .prettierrc.json และ .prettierignore</p>
+        <p>- README.md และ BUILD-VERIFICATION.md</p>
+        <p>
+          6. คงไฟล์ vite.config.ts, tsconfig.json, tailwind.config.js และ postcss.config.js
+          เดิมได้หากยังเหมือนเวอร์ชันเริ่มต้น ถ้าแก้เองให้เทียบกับ ZIP ก่อน
+        </p>
+        <p>7. ห้ามลบหรือแทนที่ .git และไม่ต้องคัดลอก node_modules หรือ dist</p>
+        <p>
+          8. src/data.ts เก่า, ProjectManager.tsx หรือ auth.ts ที่เคยสร้างไว้ไม่ถูกใช้ใน entry ใหม่
+          จะเก็บไว้ก่อนได้
+        </p>
+        <p>9. ติดตั้งและตรวจ:</p>
+        <pre><code>npm ci
+npm run format:check
+npm test
+npm run build
+npm run dev
+</code></pre>
+        <p>
+          10. หน้าจอแสดง UAT Portal Management v2 และเมนู Projects / Data &amp; Backup
+          ข้อมูลเริ่มต้นใหม่เป็นปกติ เพราะแยกจาก localStorage รุ่นเดิม
+        </p>
+        <p>11. ทดลองตาม docs/05-ACCEPTANCE-CHECKLIST.md ก่อนส่งขึ้น GitHub</p>
+        <h2>C. ปัญหาที่พบบ่อย</h2>
+        <p>- ENOENT package.json: เปิด Terminal ผิดโฟลเดอร์ ให้เข้าโฟลเดอร์ที่มี package.json</p>
+        <p>
+          - npm ci ล้มเหลวเพราะ lockfile: ตรวจว่าคัดลอก package.json และ package-lock.json จาก ZIP
+          ชุดเดียวกัน
+        </p>
+        <p>- Port ถูกใช้: ใช้ URL ใหม่ที่ Vite แสดง ไม่ยึด 5173 เสมอ</p>
+        <p>- ไม่เห็นข้อมูลเดิม: v2 เริ่ม storage ใหม่ ข้อมูลเก่าไม่ถูกแปลงอัตโนมัติ</p>
+        <p>
+          - บันทึกไม่สำเร็จ: browser อาจปิด localStorage หรือพื้นที่เต็ม Backup ข้อมูลก่อนล้าง
+          browser
+        </p>
+        <p>
+          - เปิด index.html แล้วหน้าขาว: ต้องใช้ npm run dev หรือ npm run preview ไม่ใช้ file://
+        </p>
+      </section>
+      <section id="chapter-2">
+        <h1>02 — คู่มือใช้งานทุกหน้าจอ</h1>
+        <h2>1. Project</h2>
+        <p>
+          เปิด Projects → เพิ่มโครงการ → กรอกรหัสและชื่อ → บันทึก รหัสต้องไม่ซ้ำทั้งระบบ
+          เลือกเปิดโครงการหรือเลือกจากตัวเลือกด้านบน ทุกหน้าจอแสดงข้อมูลเฉพาะโครงการที่เลือก
+        </p>
+        <p>
+          แก้ไขชื่อหรือรายละเอียดได้ เก็บถาวรจะล็อกการแก้ข้อมูลทดสอบ แต่ดูและ Export ได้
+          นำกลับมาใช้ได้ภายหลัง ไม่ลบโครงการเพื่อรักษาประวัติ หากค้นหาแล้วไม่พบให้ล้างคำค้น
+        </p>
+        <h2>2. Test Scenarios</h2>
+        <p>
+          เลือก Project → Test Scenarios → เพิ่ม Scenario กรอกรหัส ชื่อ รายละเอียด
+          รหัสต้องไม่ซ้ำภายใน Project กดเปิด Test Cases เพื่อกรองรายการของ Scenario นั้น
+        </p>
+        <p>
+          ลบ Scenario ได้เมื่อไม่มี Case อ้างอิง หากมี Case ต้องย้าย Case ไป Scenario อื่นหรือลบ
+          Case ที่ไม่จำเป็นก่อน
+        </p>
+        <h2>3. Test Cases</h2>
+        <p>
+          สร้าง Scenario ก่อน → เพิ่ม Test Case → ระบุ Scenario, ชื่อ, ขั้นตอน, ผลที่คาดหวัง,
+          Priority และผู้รับผิดชอบ กดบันทึก ค้นหาด้วยรหัส ชื่อ หรือผู้รับผิดชอบ และกรองตามสถานะกับ
+          Scenario ได้
+        </p>
+        <p>
+          ลบ Case ที่ไม่มี Defect อ้างอิงได้หลังยืนยัน ประวัติผลของ Case นั้นจะถูกลบด้วย Case ที่มี
+          Defect อ้างอิงลบไม่ได้แม้ Defect ปิดแล้ว เพื่อรักษาการเชื่อมโยง แก้ไขข้อมูลแทน
+        </p>
+        <h2>4. Test Results</h2>
+        <p>
+          กดดู / บันทึกผลจาก Test Cases หรือ Test Results อ่าน Steps และ Expected result ก่อนทดสอบ
+          ระบุ Status, Actual result, ผู้ทดสอบ และลิงก์หลักฐานถ้ามี แล้วบันทึก
+        </p>
+        <p>
+          ทุกครั้งสร้างประวัติใหม่ ไม่เขียนทับผลเดิม เปิดประวัติการทดสอบเพื่อดูย้อนหลัง Dashboard
+          ใช้รายการล่าสุดที่บันทึกของแต่ละ Case
+        </p>
+        <p>- Passed: ผ่าน</p>
+        <p>- Failed: ไม่ตรงผลคาดหวัง</p>
+        <p>- Blocked: ทดสอบต่อไม่ได้</p>
+        <p>- Not run: คืนสถานะยังไม่ทดสอบ (ต้องกรอกเหตุผลใน Actual result เช่นเดียวกับสถานะอื่น)</p>
+        <p>
+          หลักฐานรองรับ URL http/https เท่านั้น ไม่มีการอัปโหลดภาพเข้า server
+          เก็บภาพในพื้นที่ที่ทีมใช้แล้วนำลิงก์มาวาง
+        </p>
+        <h2>5. Defect Tracking</h2>
+        <p>
+          Case ที่ Failed มีปุ่มสร้าง Defect ระบบเตรียมชื่อและผลที่พบจริงให้ หรือกดรายงาน Defect
+          ในเมนูโดยตรง ระบุ Case ที่เกี่ยวข้อง ชื่อ วิธีทำให้เกิดปัญหา Severity และ Owner
+        </p>
+        <p>
+          เปลี่ยนสถานะ Open → In progress → Resolved → Closed หรือเปิดกลับได้ตามการทำงานจริง
+          ระบบไม่บังคับลำดับ ปิด Defect ไม่ทำให้ Case ผ่านอัตโนมัติ ต้อง Retest แล้วบันทึก Passed
+          ด้วย
+        </p>
+        <p>
+          กดรายละเอียด / Comment เพื่อดูคำอธิบายและเพิ่มความคิดเห็นพร้อมชื่อ แก้รายละเอียดได้
+          แต่ไม่มีปุ่มลบ Defect เพื่อเก็บประวัติ Comment ไม่มีฟังก์ชันแก้หรือลบ
+        </p>
+        <h2>6. Dashboard</h2>
+        <p>
+          ยอดทั้งหมดมาจาก Project ที่เลือก Execution progress = Case ที่สถานะล่าสุดไม่ใช่ Not run /
+          Case ทั้งหมด Passed, Failed, Blocked เป็นสถานะล่าสุด ไม่นับจำนวนครั้งที่กดทดสอบ
+        </p>
+        <p>
+          กราฟ Scenario ใช้จำนวน executed ไม่ใช่ pass rate กดเริ่มทดสอบหรือเลือก Project
+          อื่นเพื่อเปลี่ยนขอบเขต Case ที่ยังไม่ผ่านจะปรากฏใน Next to test
+        </p>
+        <h2>7. UAT Sign-off</h2>
+        <p>
+          ต้องมี Case อย่างน้อยหนึ่งรายการ ทุก Case Passed และ Defect ทั้งหมด Closed
+          ก่อนกรอกชื่อผู้รับรองและหมายเหตุ บันทึกแล้วเห็นวันเวลาและสามารถยกเลิกได้
+        </p>
+        <p>
+          เมื่อเพิ่ม/แก้/ลบ Scenario หรือ Case, บันทึกผลใหม่, เพิ่ม/แก้ Defect หรือเปลี่ยนสถานะ
+          Defect รวมถึง Import ระบบจะล้าง Sign-off ของ Project นั้น ต้องรับรองใหม่หลังตรวจผลครบ
+          การเพิ่ม Comment หรือแก้ชื่อ Project ไม่ล้าง Sign-off
+        </p>
+        <p>Sign-off เป็นข้อมูลจำลอง ไม่ตรวจตัวตนและไม่ใช่ลายเซ็นดิจิทัล</p>
+        <h2>8. Import / Export CSV</h2>
+        <p>
+          เปิด Data &amp; Backup เลือกประเภท Scenario หรือ Case ดาวน์โหลด Template
+          แล้วแก้ข้อมูลโดยคงหัวตารางเดิม ถ้าใช้ Excel ให้ Save As CSV UTF-8 ก่อนนำเข้า
+        </p>
+        <p>
+          นำเข้า Scenario ก่อน Case คอลัมน์ scenarioCode ต้องตรงกับรหัส Scenario ในโครงการปัจจุบัน
+          Priority ใช้ Low, Medium, High หรือ Critical เท่านั้น
+        </p>
+        <p>
+          เลือกไฟล์ → ยืนยัน → ระบบตรวจทั้งไฟล์ก่อนบันทึก หากแถวใดผิดจะไม่เพิ่มข้อมูลเลย
+          รหัสซ้ำจะถูกปฏิเสธ ไม่อัปเดตรายการเดิม จำกัดไฟล์ 5 MB รองรับเครื่องหมาย comma
+          และบรรทัดใหม่เมื่อใช้ CSV ที่ quote ถูกต้อง ไม่รองรับ .xlsx
+        </p>
+        <p>
+          Template Case ใช้ Scenario แรกของโครงการ ถ้ายังไม่มี Scenario ให้สร้างก่อน หรือเปลี่ยน
+          scenarioCode ให้ตรงหลัง Import Scenario
+        </p>
+        <p>
+          CSV export มีการเติม apostrophe ให้ค่าเริ่มด้วยเครื่องหมายที่ spreadsheet
+          อาจตีความเป็นสูตร ค่าพิเศษเหล่านี้อาจต้องแก้ก่อนนำกลับเข้า
+        </p>
+        <h2>9. รายงาน / สำรอง / กู้คืน</h2>
+        <p>
+          - Export report ด้านบน: JSON เฉพาะโครงการพร้อม Summary และข้อมูลทดสอบ ใช้อ่าน/ส่งรายงาน
+          ไม่ใช่ไฟล์ Restore
+        </p>
+        <p>- Backup ทั้งหมด: JSON version 2 ที่รวมทุกโครงการ ใช้ Restore ได้</p>
+        <p>
+          - Restore: เลือก Backup → ตรวจรูปแบบ → ยืนยันแทนที่ข้อมูลทุกโครงการ จึงต้อง Backup
+          ปัจจุบันก่อน
+        </p>
+        <p>- ดาวน์โหลดข้อมูลดิบ: เก็บ localStorage ปัจจุบันเพื่อช่วยกู้กรณีข้อมูลอ่านไม่ได้</p>
+        <p>- Reset Demo: ยืนยันก่อนแทนที่ข้อมูลปัจจุบันด้วย seed</p>
+        <p>
+          Backup เป็นการเก็บ state ณ เวลานั้น Restore เป็นการย้อน state รวม Sign-off
+          จึงควรพิจารณาว่าเป็นข้อมูลเก่าก่อนใช้งาน
+        </p>
+        <h2>10. การเก็บข้อมูล</h2>
+        <p>
+          แต่ละ browser/เครื่องและ path เก็บข้อมูลแยกกัน เว็บหลักกับ develop ไม่เห็นข้อมูลร่วมกัน
+          แม้ URL อยู่โดเมนเดียวกัน ใช้ Backup/Restore หากต้องย้าย ข้อมูลอาจหายเมื่อล้าง browser
+          หรือใช้ private mode
+        </p>
+        <p>
+          ใช้หนึ่ง tab ต่อ URL เพราะเวอร์ชันนี้ไม่มีการรวมข้อมูลขณะทำงานพร้อมกัน ยังไม่มี backend,
+          login, Role, ระบบแจ้งเตือน หรือจัดการไฟล์แนบจริง
+        </p>
+      </section>
+      <section id="chapter-3">
+        <h1>03 — GitHub, develop และ main</h1>
+        <h2>1. ตรวจ repository ปลายทาง</h2>
+        <p>เปิด Terminal ใน repository เดิม:</p>
+        <pre><code>git remote -v
+git branch --show-current
+</code></pre>
+        <p>
+          origin ควรเป็น https://github.com/phrmthnttbn/uat-portal-management.git และ branch develop
+          หาก origin ผิด:
+        </p>
+        <pre><code>git remote set-url origin https://github.com/phrmthnttbn/uat-portal-management.git
+</code></pre>
+        <h2>2. ส่งเวอร์ชันใหม่เข้า develop</h2>
+        <p>คัดลอก source ตามคู่มือ 01 แล้วรันทีละคำสั่ง ตรวจให้ผ่านก่อน push:</p>
+        <pre><code>npm ci
+npm run format:check
+npm test
+npm run build
+git status
+git add src index.html package.json package-lock.json tests docs public .github .prettierrc.json .prettierignore README.md BUILD-VERIFICATION.md
+git diff --cached --stat
+git commit -m "Complete general UAT management features"
+git push -u origin develop
+</code></pre>
+        <p>
+          อย่าเพิ่ม dist หรือ node_modules ใน Git ถ้ารายการ staged มีไฟล์ส่วนตัวที่ไม่เกี่ยวข้อง
+          ให้เอาออกก่อน commit
+        </p>
+        <h2>3. ตั้ง GitHub Pages</h2>
+        <p>Repository → Settings → Pages → Source เลือก GitHub Actions</p>
+        <p>
+          Settings → Environments → github-pages → Deployment branches and tags เลือก Selected
+          branches and tags และอนุญาต Branch main กับ develop โดยเก็บ protection อื่นที่ทีมตั้งไว้
+          หากมี required reviewer ให้ผู้ดูแลอนุมัติใน Actions
+        </p>
+        <p>
+          ทั้ง main และ develop ต้องมี .github/workflows/deploy.yml เวอร์ชันเดียวกันใน ZIP หาก main
+          ยังเป็นเวอร์ชันเก่า ให้คัดลอกเฉพาะ workflow นี้ผ่าน GitHub editor ใน main ก่อน
+          ไม่จำเป็นต้อง merge ฟีเจอร์ที่ยังไม่ทดสอบ
+        </p>
+        <p>
+          Workflow สร้าง main ลง root และ develop ลง /develop/ แล้วรวมเป็น artifact เดียวก่อน deploy
+          ทุก push เข้า main/develop จะสร้างทั้งสองเว็บใหม่ หาก branch ใด build ไม่ผ่าน จะยังไม่
+          deploy รอบนั้น
+        </p>
+        <p>
+          การ push develop ไม่ merge source เข้า main แต่จะ rebuild source main ปัจจุบันด้วย ดังนั้น
+          deployment นี้เป็นการ deploy ร่วม ไม่ใช่ hosting สองชุดที่แยกอิสระ
+        </p>
+        <h2>4. ตรวจผล</h2>
+        <p>Actions → Deploy main and develop → เปิดรอบล่าสุด → ทั้ง build/deploy ต้องสีเขียว</p>
+        <p>- เว็บหลัก: https://phrmthnttbn.github.io/uat-portal-management/</p>
+        <p>- เว็บทดสอบ: https://phrmthnttbn.github.io/uat-portal-management/develop/</p>
+        <p>กด Ctrl+F5 หากยังเห็นแบบเก่า เวอร์ชันใหม่มี footer v2.0</p>
+        <h2>5. นำงานที่ทดสอบแล้วขึ้น main</h2>
+        <p>
+          แนะนำใช้ Pull Request บน GitHub: base main ← compare develop ตรวจ Files changed แล้ว merge
+          หลังทดสอบผ่าน อย่า merge หาก develop มีงานอื่นที่ยังไม่พร้อม
+        </p>
+        <p>
+          หลัง merge ให้รอ Actions แล้วเปิดเว็บหลัก โค้ดเปลี่ยนแต่ข้อมูล localStorage
+          ของเว็บหลักจะไม่คัดลอกจาก develop ต้อง Backup/Restore เองหากตั้งใจจะนำข้อมูลทดสอบไปด้วย
+        </p>
+        <h2>6. สั่งรันเอง</h2>
+        <p>
+          Actions → Deploy main and develop → Run workflow → เลือก develop หรือ main → Run workflow
+          หากไม่เห็นปุ่ม ให้ตรวจว่า workflow มี workflow_dispatch และมีไฟล์บน default branch
+        </p>
+        <h2>7. แก้ปัญหา</h2>
+        <p>- Branch develop is not allowed: เพิ่ม develop ในกฎ github-pages environment</p>
+        <p>
+          - 404 เฉพาะ /develop/: ตรวจว่า main ยังใช้ workflow เก่าหรือไม่ และ Combine both websites
+          ทำงานสำเร็จหรือไม่
+        </p>
+        <p>- npm ci ล้มเหลว: package/lockfile ต้องตรงกัน ตรวจ logs ว่า main หรือ develop ล้มเหลว</p>
+        <p>- test ไม่ผ่าน: เปิดขั้น Test development เพื่อดูชื่อ test และ error</p>
+        <p>
+          - Invalid username or token: ใช้ Git Credential Manager เข้าระบบผ่าน browser
+          ด้วยบัญชีที่มีสิทธิ์ repository ไม่ใช้ password GitHub กับ Git HTTPS
+        </p>
+        <p>
+          - Git push rejected: git status ก่อน แล้ว pull ตามกระบวนการทีม อย่า force push
+          เพื่อข้ามปัญหา
+        </p>
+        <h2>8. ย้อนเวอร์ชัน</h2>
+        <p>
+          Backup ข้อมูลใน browser ก่อน บน GitHub revert Pull Request ที่นำเวอร์ชันใหม่เข้า main
+          หรือใช้ git revert ของ commit ที่ต้องการผ่าน branch/PR ตามกระบวนการทีม แล้วรอ workflow
+          การย้อน source ไม่ได้ย้อน localStorage อัตโนมัติ
+        </p>
+        <p>การส่งมอบครั้งนี้ไม่ได้ push หรือแก้ remote repository ให้คุณ</p>
+      </section>
+      <section id="chapter-4">
+        <h1>04 — สอนโครงสร้างและวิธีแก้โค้ดทีละส่วน</h1>
+        <h2>1. รู้จักไฟล์หลัก</h2>
+        <pre><code>src/
+  main.tsx       หน้าจอ ฟอร์ม state การบันทึกและดาวน์โหลด
+  model.ts      types, seed, summary, CSV, validation และกฎข้อมูล
+  style.css     Tailwind directives และธีมเขียวเข้ม–ครีม
+index.html      title, metadata และ Kanit
+vite.config.ts  React plugin และ base แบบ relative
+public/samples/ ตัวอย่าง CSV
+ tests/model.test.mjs  ชุดทดสอบกฎข้อมูล
+ docs/          คู่มือชุดนี้
+.github/workflows/deploy.yml  deploy main/develop
+</code></pre>
+        <p>
+          src/data.ts เป็นไฟล์ตัวอย่างรุ่นเดิม ไม่ได้ถูก import ใน v2 ให้แก้ seed ใน model.ts แทน
+          ไม่ต้องแก้ไฟล์ dist เพราะ build จะสร้างทับ
+        </p>
+        <h2>2. เปลี่ยนชื่อเว็บไซต์และฟอนต์</h2>
+        <p>
+          เปิด index.html แก้ title และ description ลิงก์ Google Fonts โหลด Kanit จากนั้นเปิด
+          src/style.css ค้นหา ':root' บริเวณท้ายไฟล์ที่กำหนด font-family
+          หากเพิ่มน้ำหนักฟอนต์ใหม่ต้องเพิ่ม weight ใน URL Google Fonts ด้วย
+        </p>
+        <p>
+          แก้ชื่อ brand บน Sidebar ใน src/main.tsx ค้นหา className="brand" ชื่อ package อยู่
+          package.json หากเปลี่ยน dependencies ใช้ npm install เพื่ออัปเดต package-lock.json อย่าแก้
+          lockfile เอง
+        </p>
+        <h2>3. เปลี่ยนสีและระยะห่าง</h2>
+        <p>
+          เปิด src/style.css ส่วน 'Refined forest &amp; ivory design system' เป็นธีมหลัก ส่วน
+          'Management screens' ใช้กับหน้าจอ v2
+        </p>
+        <p>- .sidebar / .nav: เมนู</p>
+        <p>- .hero / .ring: Dashboard</p>
+        <p>- .panel / .stat: การ์ด</p>
+        <p>- table / th / td: ตาราง</p>
+        <p>- .badge: ป้ายสถานะ</p>
+        <p>- .modal / .field: ฟอร์ม</p>
+        <p>- @media(max-width:620px): มือถือ</p>
+        <p>
+          ไฟล์มี CSS จากรุ่นเริ่มต้นและ override ธีมอยู่ท้ายไฟล์ ให้แก้ส่วน override
+          ที่ตรงกับองค์ประกอบ หลีกเลี่ยงเติมกฎซ้ำหลายชุด ใช้ DevTools ตรวจ computed style
+          เมื่อไม่แน่ใจ
+        </p>
+        <h2>4. เปลี่ยนข้อมูลเริ่มต้น</h2>
+        <p>
+          เปิด src/model.ts หา function seed() แก้ projects, scenarios, cases, results และ defects
+          ให้ id เชื่อมกันถูกต้อง
+        </p>
+        <p>
+          projectId ต้องตรงกับ Project, scenarioId ของ Case ต้องเป็น Scenario ใน Project เดียวกัน,
+          caseId ของ Result/Defect ต้องเป็น Case ของ Project เดียวกัน
+        </p>
+        <p>
+          seed จะใช้เมื่อยังไม่มี localStorage ของ URL นี้ การแก้ seed ไม่แทนข้อมูลที่เคยบันทึก
+          ถ้าต้องการทดลองใหม่ให้ Backup ก่อนแล้วกด Reset Demo ใน Data &amp; Backup
+        </p>
+        <h2>5. เข้าใจการบันทึก</h2>
+        <p>ใน main.tsx:</p>
+        <p>1. storageKey รวมชื่อเวอร์ชันและ location.pathname เพื่อแยก root กับ /develop/</p>
+        <p>2. load() อ่าน localStorage แล้วเรียก validateBackup()</p>
+        <p>3. db เป็น state รวมข้อมูลทุก Project</p>
+        <p>4. scopedCases/scopedScenarios/scopedDefects กรองด้วย projectId</p>
+        <p>
+          5. save(next) ตรวจข้อมูลและเขียน localStorage ก่อนอัปเดต state
+          ถ้าเขียนไม่สำเร็จจะแสดงคำเตือน
+        </p>
+        <p>6. invalidate(next, projectId) ล้าง Sign-off เฉพาะโครงการที่ข้อมูลเปลี่ยน</p>
+        <p>
+          หากเพิ่ม mutation ที่กระทบผล UAT ต้องเรียก invalidate ก่อน save เสมอ ห้ามเปลี่ยน db โดยตรง
+          ให้สร้าง next จาก structuredClone หรือ immutable update
+        </p>
+        <h2>6. ตัวอย่างเพิ่มช่องข้อมูล Test Case</h2>
+        <p>สมมติต้องการเพิ่ม Preconditions:</p>
+        <p>1. เพิ่ม preconditions: string ใน interface Case ใน model.ts</p>
+        <p>2. เพิ่มค่าใน Case ทุกจุดของ seed()</p>
+        <p>3. เพิ่ม Field/textarea name="preconditions" ในฟอร์ม kind==='case' ของ main.tsx</p>
+        <p>4. ใน submit() ส่วน kind==='case' เพิ่ม preconditions: v('preconditions')</p>
+        <p>5. แสดงช่องนี้ในหน้าดู Case/บันทึกผล</p>
+        <p>6. เพิ่ม validation และคอลัมน์ CSV หากต้องการ Import/Export</p>
+        <p>
+          7. เพิ่มแนวทาง migrate ข้อมูลเก่า เพราะ localStorage เดิมไม่มี field ใหม่นี้ ห้ามเพิ่ม
+          required validation แล้วทำให้ข้อมูลเก่าอ่านไม่ได้โดยไม่เตรียม migration
+        </p>
+        <p>8. เพิ่ม test ที่ตรวจค่าถูกเก็บและส่งออก</p>
+        <p>9. รัน npm run format, npm test และ npm run build</p>
+        <h2>7. CSV และ Backup</h2>
+        <p>
+          parseCsv รองรับ quoted field, comma, newline และ BOM ส่วน importCsv ตรวจหัวตาราง รหัสซ้ำ
+          ความสัมพันธ์ และ Priority ก่อนคืน Database ใหม่ กรณี error state เดิมไม่ถูกแก้
+        </p>
+        <p>
+          validateBackup ตรวจ version, types, ค่า enum, ID และความสัมพันธ์ระหว่างข้อมูล ใช้ทั้งตอน
+          load, save และ Restore หากเพิ่ม entity ใหม่ต้องแก้ schema, validation, backup และ tests
+          ให้พร้อมกัน
+        </p>
+        <h2>8. วิธีตรวจทุกครั้งหลังแก้</h2>
+        <pre><code>npm run format
+npm run format:check
+npm test
+npm run build
+npm run dev
+</code></pre>
+        <p>
+          npm test ใช้ Node test runner และ transpile model.ts ด้วย TypeScript ที่ติดตั้งในโปรเจกต์
+          ไม่ใช่ browser test การผ่าน test จึงยังต้องลองฟอร์มจริงตาม acceptance checklist
+        </p>
+        <h2>9. ต่อฐานข้อมูลภายหลัง</h2>
+        <p>
+          แยก save/load ออกเป็น data service แล้วค่อยเปลี่ยนเป็น API รักษา projectId และ foreign
+          keys ในทุก entity การใช้งานร่วมกันต้องมี transaction/version conflict handling
+          และสำรองข้อมูลที่ server ก่อนเพิ่ม Role ในภายหลัง
+        </p>
+      </section>
+      <section id="chapter-5">
+        <h1>05 — รายการทดลองรับมอบใน Browser</h1>
+        <p>
+          เอกสารนี้เป็นรายการให้ผู้รับมอบทดลอง ไม่ได้หมายความว่ารายการ UI
+          ทั้งหมดถูกตรวจอัตโนมัติแล้ว ผลตรวจจริงอยู่ BUILD-VERIFICATION.md
+        </p>
+        <h2>เตรียม</h2>
+        <p>1. npm ci → npm test → npm run build → npm run dev</p>
+        <p>2. เปิด browser ที่อนุญาต localStorage และเปิดเพียงหนึ่ง tab ของ URL นี้</p>
+        <p>3. Backup ก่อน Reset Demo เพื่อไม่ให้กระทบข้อมูลที่ต้องเก็บ</p>
+        <div class="table">
+          <table>
+            <tbody>
+              <tr>
+                <td>ขั้น</td>
+                <td>วิธีทดลอง</td>
+                <td>ผลที่คาดหวัง</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>เปิดเว็บ</td>
+                <td>เห็นธีมเขียว–ครีม เมนู 8 รายการ Kanit เมื่อเข้าถึง Google Fonts ได้</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>เลือก RIDER</td>
+                <td>
+                  8 Case, 4 Passed, 1 Failed, 1 Blocked, 2 Not run, 2 Open defects, progress 75%
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>สลับ PORTAL</td>
+                <td>ไม่มี Case หรือ Defect ไม่ดึงข้อมูล RIDER มาปน</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Projects เพิ่ม code TEST / ชื่อ Sandbox</td>
+                <td>โครงการใหม่ถูกเลือก ไม่มีข้อมูลทดสอบ</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>สร้าง Project code test ซ้ำ</td>
+                <td>ปฏิเสธโดยไม่เพิ่มรายการ</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>แก้ชื่อ TEST แล้ว refresh</td>
+                <td>ชื่อที่แก้ยังอยู่ (หลัง refresh อาจต้องเลือกโครงการเดิมใหม่)</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>สร้าง Scenario SC-001 ใน TEST</td>
+                <td>บันทึกได้ แม้ RIDER มี SC-001 อยู่แล้ว</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>สร้าง Case TC-001 ผูก SC-001</td>
+                <td>Case อยู่เฉพาะ TEST</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>กรองชื่อ/สถานะ/Scenario</td>
+                <td>แสดงเฉพาะที่ตรงกัน ล้างตัวกรองแล้วเห็นทั้งหมด</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>บันทึก Failed พร้อมผู้ทดสอบและ Actual</td>
+                <td>Dashboard Failed เพิ่ม 1 และมีประวัติผล</td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>สร้าง Defect จาก Fail</td>
+                <td>ชื่อและ Actual ถูกเตรียมให้ ผูก Case ถูกต้อง</td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>เพิ่ม Comment และแก้ Severity/Owner</td>
+                <td>แสดงข้อความ ชื่อและเวลา ค่าใหม่ยังอยู่หลัง refresh</td>
+              </tr>
+              <tr>
+                <td>13</td>
+                <td>เปลี่ยน Defect เป็น Closed</td>
+                <td>Open defects ลด แต่ Case ยัง Failed</td>
+              </tr>
+              <tr>
+                <td>14</td>
+                <td>Retest Case เป็น Passed</td>
+                <td>Failed ลด Passed เพิ่ม ประวัติเก่ายังอยู่</td>
+              </tr>
+              <tr>
+                <td>15</td>
+                <td>Sign-off ก่อนปิดทุก Defect</td>
+                <td>ปุ่มรับรองไม่พร้อมใช้งาน</td>
+              </tr>
+              <tr>
+                <td>16</td>
+                <td>ทุก Case Passed และทุก Defect Closed</td>
+                <td>กรอกชื่อและรับรองได้ เห็นเวลาและหมายเหตุ</td>
+              </tr>
+              <tr>
+                <td>17</td>
+                <td>เพิ่ม Case หรือบันทึกผลใหม่หลัง Sign-off</td>
+                <td>Sign-off เดิมถูกล้างเฉพาะ Project นี้</td>
+              </tr>
+              <tr>
+                <td>18</td>
+                <td>ลบ Scenario ที่มี Case</td>
+                <td>ปฏิเสธและแจ้งเหตุผล</td>
+              </tr>
+              <tr>
+                <td>19</td>
+                <td>ลบ Case ที่มี Defect แม้ Closed</td>
+                <td>ปฏิเสธ รักษาประวัติอ้างอิง</td>
+              </tr>
+              <tr>
+                <td>20</td>
+                <td>สร้าง Case ที่ไม่มี Defect บันทึกผลแล้วลบ</td>
+                <td>ยืนยันแล้วลบ Case และประวัติของ Case นั้น</td>
+              </tr>
+              <tr>
+                <td>21</td>
+                <td>เก็บ TEST ถาวร</td>
+                <td>ดู/Export ได้ แต่เพิ่ม Case บันทึกผล Comment ไม่ได้</td>
+              </tr>
+              <tr>
+                <td>22</td>
+                <td>นำ TEST กลับมาใช้</td>
+                <td>แก้ไขได้อีกครั้ง</td>
+              </tr>
+              <tr>
+                <td>23</td>
+                <td>นำเข้า sample Scenarios แล้ว Cases ใน Project ว่าง</td>
+                <td>ได้ Scenario และ Case ตามไฟล์</td>
+              </tr>
+              <tr>
+                <td>24</td>
+                <td>นำเข้าไฟล์เดิมซ้ำ</td>
+                <td>ปฏิเสธรหัสซ้ำ ไม่เพิ่มบางแถว</td>
+              </tr>
+              <tr>
+                <td>25</td>
+                <td>เปลี่ยน scenarioCode ให้ไม่มีจริง</td>
+                <td>ปฏิเสธพร้อมบอกแถว</td>
+              </tr>
+              <tr>
+                <td>26</td>
+                <td>CSV ที่มีไทย comma และ newline</td>
+                <td>ข้อมูลไม่แตกแถว/คอลัมน์ผิด</td>
+              </tr>
+              <tr>
+                <td>27</td>
+                <td>Export CSV เปิดด้วย Excel UTF-8</td>
+                <td>ตัวอักษรไทยถูกต้อง</td>
+              </tr>
+              <tr>
+                <td>28</td>
+                <td>Backup → เพิ่มข้อมูลชั่วคราว → Restore Backup</td>
+                <td>state กลับตาม Backup หลังยืนยัน</td>
+              </tr>
+              <tr>
+                <td>29</td>
+                <td>Restore JSON ที่ขาด arrays หรืออ้างอิงผิด</td>
+                <td>ปฏิเสธ ข้อมูลปัจจุบันยังอยู่</td>
+              </tr>
+              <tr>
+                <td>30</td>
+                <td>เปิดเว็บ root และ /develop/</td>
+                <td>ข้อมูลไม่ปะปนระหว่าง path</td>
+              </tr>
+              <tr>
+                <td>31</td>
+                <td>หน้าจอกว้าง 390px</td>
+                <td>เมนูเปิด/ปิดได้ ฟอร์มไม่ล้น ตารางเลื่อนแนวนอนได้</td>
+              </tr>
+              <tr>
+                <td>32</td>
+                <td>ใช้ Tab และ Escape ใน modal</td>
+                <td>focus เห็นชัดและ Escape ปิด modal ได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h2>เมื่อพบปัญหา</h2>
+        <p>
+          บันทึก Project, ขั้นตอน, Expected, Actual และภาพหน้าจอ ถ้าเป็นข้อมูลสำคัญ Backup
+          ก่อนเปลี่ยน state ส่ง error จาก Console หรือ Terminal โดยไม่ส่ง token/password
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

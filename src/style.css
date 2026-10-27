@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 :root {
   font-family: 'Kanit', sans-serif;
   color: #263d35;
@@ -1697,5 +1698,148 @@ footer {
   *::after {
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+/* Management screens */
+:root {
+  font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+.project-picker {
+  max-width: 380px;
+  min-width: 180px;
+}
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.scenario .project-actions {
+  margin-top: 20px;
+}
+.detail-panel {
+  padding: 24px;
+  margin-top: 24px;
+  background: #f4f5ea;
+  border: 1px solid #e1e6d5;
+  border-radius: 14px;
+}
+.comment {
+  border-left: 3px solid #b3c68f;
+  padding: 12px 16px;
+  margin: 18px 0;
+  background: #ffffff88;
+  border-radius: 0 8px 8px 0;
+}
+.comment small {
+  display: block;
+  color: #687b60;
+  margin: 7px 0;
+  font-size: 11px;
+}
+.comment p {
+  overflow-wrap: anywhere;
+}
+.alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border: 1px solid #dbc88b;
+  color: #7e6426;
+  background: #fbf3d9;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background: #214b37;
+  color: white;
+  padding: 17px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px #193e3030;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: min(520px, calc(100vw - 32px));
+  font-size: 13px;
+}
+.toast button {
+  border: 0;
+  background: transparent;
+  color: white;
+  flex-shrink: 0;
+}
+.danger,
+.error-text {
+  color: #a3533b;
+}
+.modal-actions {
+  position: sticky;
+  bottom: -32px;
+  background: #fffef9;
+  padding: 20px 0;
+  margin-top: 16px;
+  border-top: 1px solid #e5e9dc;
+}
+.modal {
+  width: 650px;
+}
+summary {
+  cursor: pointer;
+  color: #567346;
+  font-size: 13px;
+  padding: 15px 0;
+}
+.panel h3 {
+  font-weight: 600;
+}
+.toolbar {
+  flex-wrap: wrap;
+}
+.toolbar .search {
+  min-width: 160px;
+}
+select {
+  max-width: 100%;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+@media (max-width: 620px) {
+  .project-picker {
+    min-width: 100px;
+    max-width: 58%;
+    font-size: 11px;
+  }
+  .breadcrumb {
+    font-size: 9px;
+  }
+  .breadcrumb > span {
+    display: none;
+  }
+  .breadcrumb > strong {
+    display: none;
+  }
+  .toast {
+    right: 16px;
+    bottom: 16px;
+  }
+  .detail-panel {
+    padding: 17px;
+  }
+  .check-row {
+    flex-wrap: wrap;
+  }
+  .modal-actions {
+    bottom: -23px;
   }
 }

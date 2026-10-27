@@ -1,18 +1,20 @@
-# Build verification
+# Build verification — UAT Portal Management v2
 
-ตรวจวันที่ 22 ตุลาคม 2026
+ตรวจบน Windows วันที่ 22 ตุลาคม 2026 ด้วย Node.js v20.13.1 และ npm 10.5.2 (คู่มือแนะนำ Node 22)
 
-- Node.js v20.13.1 / npm 10.5.2 บน Windows
-- npm install: ผ่าน (137 packages) และสร้าง package-lock.json แล้ว
-- npm run build: ผ่าน exit code 0 (tsc -b และ Vite 6.4.5)
-- Production output: dist/index.html, CSS 17.76 kB, JavaScript 171.53 kB
-- Vite preview: เริ่มสำเร็จที่ http://127.0.0.1:4173/
-- HTTP smoke check: หน้า production ตอบกลับ 200
-- Browser UI verification: เครื่องมือเปิด browser ตอบช้าและไม่คืนผลหน้าจอที่ใช้ยืนยันได้ จึงยังไม่ได้ยืนยัน interaction/visual layout ผ่าน browser
-- GitHub Pages: เตรียม workflow แล้ว ยังไม่ได้ push หรือ deploy จริง เนื่องจากไม่มี repository ปลายทางในคำขอ
+## ผลที่ตรวจจริง
 
-Dashboard เริ่มต้น: 10 test cases, 6 Passed, 1 Failed, 1 Blocked, 2 Not run, execution 80%, 2 open defects
+- TypeScript strict check และ Vite production build ผ่าน
+- ชุดทดสอบกฎข้อมูล 8 รายการผ่าน: แยก Project, ใช้ผลล่าสุดและคงประวัติ, เงื่อนไข Sign-off, ล้าง Sign-off เฉพาะโครงการ, Import CSV แบบ atomic, ป้องกันข้อมูลอ้างอิงข้ามโครงการ, ป้องกันลบ Case ที่มี Defect, Backup validation และ CSV formula escaping
+- Prettier format:check ผ่าน
+- Workflow main/develop เตรียมแล้ว ไม่ได้ push หรือ deploy เวอร์ชันนี้จริง
 
-รัน npm ci และ npm run build เพื่อตรวจซ้ำหลังแก้ไข ดูคู่มือ README.md สำหรับ Windows และ GitHub Pages
+## ข้อจำกัดการตรวจ
 
-เปลี่ยนชื่อ package และโฟลเดอร์เป็น uat-portal-management และตรวจ npm run build ซ้ำผ่านแล้ว (22 ตุลาคม 2026)
+เครื่องมือ browser หยุดทำงานขณะเปิด preview จึงยังไม่ได้ยืนยันภาพจริง การคลิกฟอร์ม หรือ responsive layout ใน browser ชุดทดสอบที่ผ่านเป็น model tests ไม่ใช่ end-to-end tests
+
+ใช้ docs/05-ACCEPTANCE-CHECKLIST.md ทดลองหน้าจอจริงก่อนเผยแพร่ให้ทีมใช้
+
+## ข้อจำกัดผลิตภัณฑ์
+
+ไม่มี Role/login/backend ตามขอบเขตเวอร์ชันนี้ บันทึกใน browser แยกตาม path, ไม่ซิงก์ข้ามเครื่อง, หลักฐานเป็น URL ไม่อัปโหลดไฟล์, Import CSV ไม่รองรับ XLSX, Sign-off ไม่ตรวจตัวตน, ไม่มี migration v1 อัตโนมัติ

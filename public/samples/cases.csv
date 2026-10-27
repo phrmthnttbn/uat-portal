@@ -1,0 +1,2 @@
+code,scenarioCode,name,steps,expected,priority,owner
+TC-IMPORT,SC-IMPORT,เปิดหน้ารายการโครงการ,1. เปิดเมนู Projects,แสดงรายการโครงการ,High,Tester
